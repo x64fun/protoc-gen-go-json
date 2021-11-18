@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/x64fun/protoc-gen-go-json/example/pb;pb";
+
+import "json/json.proto";
+
+message HelloRequest {
+    string data = 1;
+    int64 age = 2 [ (golang.json.json_name) = "Age" ];
+    bytes object = 3 [ (golang.json.json_type) = "object" ];
+}
+message HelloResponse {
+    string reply = 1;
+}
+service Hello {
+    rpc Hello(HelloRequest) returns (HelloResponse);
+}
