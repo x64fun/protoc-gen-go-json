@@ -423,7 +423,7 @@ func GetBytes(v JSONObject) ([]byte, error) {
 
 type HelloRequestJSON struct {
 	Data   string     `json:"data"`
-	Age    int64      `json:"aaage"`
+	Age    int64      `json:"Age"`
 	Object JSONObject `json:"object"`
 }
 
