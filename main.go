@@ -1,10 +1,8 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"strings"
-	"text/template"
 
 	"github.com/x64fun/protoc-gen-go-json/pb"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -28,9 +26,6 @@ func main() {
 	})
 }
 
-//go:embed template
-var templateFiles embed.FS
-
 type GenerateData struct {
 	Version       string
 	ProtocVersion string
@@ -39,9 +34,10 @@ type GenerateData struct {
 
 const deprecationComment = "// Deprecated: Do not use."
 const (
-	fmtPackage     = protogen.GoImportPath("fmt")
-	jsonPackage    = protogen.GoImportPath("encoding/json")
-	stringsPackage = protogen.GoImportPath("strings")
+	fmtPackage       = protogen.GoImportPath("fmt")
+	jsonPackage      = protogen.GoImportPath("encoding/json")
+	stringsPackage   = protogen.GoImportPath("strings")
+	jsonToolsPackage = protogen.GoImportPath("github.com/x64fun/protoc-gen-go-json/tools")
 )
 
 func jsonType(i string) string {
@@ -76,13 +72,7 @@ func generateFile(gen *protogen.Plugin, file *protogen.File) (*protogen.Generate
 	g.P()
 	g.P("package ", file.GoPackageName)
 	g.P()
-	if err := template.Must(template.New("json.tmpl").ParseFS(templateFiles, "template/json.tmpl")).Execute(g, GenerateData{
-		Version:       version,
-		ProtocVersion: protocVersion(gen),
-		File:          *file,
-	}); err != nil {
-		return nil, err
-	}
+
 	for _, m := range file.Messages {
 		g.P("type ", m.GoIdent, "JSON struct {")
 		for _, f := range m.Fields {
@@ -94,6 +84,7 @@ func generateFile(gen *protogen.Plugin, file *protogen.File) (*protogen.Generate
 			if _jsonType == "" {
 				// jsonType(f.Desc.Kind().String())
 				_jsonType = goType(f.Desc.Kind().String())
+				g.P(f.GoName, " ", _jsonType, "`", `json:"`, _jsonTag, `"`, "`")
 			} else {
 				switch _jsonType {
 				case "string":
@@ -105,8 +96,8 @@ func generateFile(gen *protogen.Plugin, file *protogen.File) (*protogen.Generate
 				case "object":
 					_jsonType = "JSONObject"
 				}
+				g.P(f.GoName, " ", jsonToolsPackage.Ident(_jsonType), "`", `json:"`, _jsonTag, `"`, "`")
 			}
-			g.P(f.GoName, " ", _jsonType, "`", `json:"`, _jsonTag, `"`, "`")
 		}
 		g.P("}")
 		g.P("func (x ", m.GoIdent, ") MarshalJSON() ([]byte, error) {")
@@ -128,7 +119,7 @@ func generateFile(gen *protogen.Plugin, file *protogen.File) (*protogen.Generate
 				case "object":
 					_jsonType = "Object"
 				}
-				g.P("tmp.", f.GoName, ", err = ", _jsonType, "(x.", f.GoName, ")")
+				g.P("tmp.", f.GoName, ", err = ", jsonToolsPackage.Ident(_jsonType), "(x.", f.GoName, ")")
 				g.P("if err != nil {")
 				g.P("return nil, err")
 				g.P("}")
@@ -148,7 +139,7 @@ func generateFile(gen *protogen.Plugin, file *protogen.File) (*protogen.Generate
 				g.P("x.", f.GoName, " = ", "tmp.", f.GoName)
 			} else {
 				k := f.Desc.Kind().String()
-				g.P("x.", f.GoName, ", err = ", "Get"+strings.ToUpper(k[0:1])+k[1:], "(tmp.", f.GoName, ")")
+				g.P("x.", f.GoName, ", err = ", jsonToolsPackage.Ident("Get"+strings.ToUpper(k[0:1])+k[1:]), "(tmp.", f.GoName, ")")
 				g.P("if err != nil {")
 				g.P("return err")
 				g.P("}")

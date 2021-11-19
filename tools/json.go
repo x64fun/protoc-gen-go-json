@@ -1,4 +1,12 @@
+package tools
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type JSONString string
+
 func String(i interface{}) (JSONString, error) {
 	switch v := i.(type) {
 	case string:
@@ -12,6 +20,7 @@ func GetString(v JSONString) (string, error) {
 }
 
 type JSONNumber interface{}
+
 func Number(i interface{}) (JSONNumber, error) {
 	switch v := i.(type) {
 	case int, int8, int16, int32, int64:
@@ -20,8 +29,8 @@ func Number(i interface{}) (JSONNumber, error) {
 		return v, nil
 	case float32, float64:
 		return v, nil
-    case nil:
-        return v, nil
+	case nil:
+		return v, nil
 	default:
 		return 0, fmt.Errorf("json: unsupported %T into JSONNumber data type", i)
 	}
@@ -48,8 +57,8 @@ func GetInt(v JSONNumber) (int, error) {
 		return int(tmpV), nil
 	case uint64:
 		return int(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -76,8 +85,8 @@ func GetInt8(v JSONNumber) (int8, error) {
 		return int8(tmpV), nil
 	case uint64:
 		return int8(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -104,8 +113,8 @@ func GetInt16(v JSONNumber) (int16, error) {
 		return int16(tmpV), nil
 	case uint64:
 		return int16(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -132,8 +141,8 @@ func GetInt32(v JSONNumber) (int32, error) {
 		return int32(tmpV), nil
 	case uint64:
 		return int32(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -160,8 +169,8 @@ func GetInt64(v JSONNumber) (int64, error) {
 		return int64(tmpV), nil
 	case uint64:
 		return int64(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -188,8 +197,8 @@ func GetUint(v JSONNumber) (uint, error) {
 		return uint(tmpV), nil
 	case uint64:
 		return uint(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -216,8 +225,8 @@ func GetUint8(v JSONNumber) (uint8, error) {
 		return uint8(tmpV), nil
 	case uint64:
 		return uint8(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -244,8 +253,8 @@ func GetUint16(v JSONNumber) (uint16, error) {
 		return uint16(tmpV), nil
 	case uint64:
 		return uint16(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -272,8 +281,8 @@ func GetUint32(v JSONNumber) (uint32, error) {
 		return tmpV, nil
 	case uint64:
 		return uint32(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -300,8 +309,8 @@ func GetUint64(v JSONNumber) (uint64, error) {
 		return uint64(tmpV), nil
 	case uint64:
 		return tmpV, nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -332,8 +341,8 @@ func GetFloat32(v JSONNumber) (float32, error) {
 		return tmpV, nil
 	case float64:
 		return float32(tmpV), nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
@@ -364,14 +373,15 @@ func GetFloat64(v JSONNumber) (float64, error) {
 		return float64(tmpV), nil
 	case float64:
 		return tmpV, nil
-    case nil:
-        return 0, nil
+	case nil:
+		return 0, nil
 	default:
 		return 0, fmt.Errorf("json: cannot unmarshal %T into Go struct field", v)
 	}
 }
 
 type JSONBoolean bool
+
 func Boolean(i interface{}) (JSONBoolean, error) {
 	switch v := i.(type) {
 	case bool:
@@ -385,20 +395,21 @@ func GetBool(v JSONBoolean) (bool, error) {
 }
 
 type JSONObject map[string]interface{}
+
 func Object(i interface{}) (JSONObject, error) {
 	switch v := i.(type) {
 	case []byte:
-        tmp := make(map[string]interface{})
+		tmp := make(map[string]interface{})
 		if err := json.Unmarshal(v, &tmp); err != nil {
 			return nil, err
 		}
 		return tmp, nil
-    case nil:
-        return nil, nil
+	case nil:
+		return nil, nil
 	default:
 		return nil, fmt.Errorf("json: unsupported %T into JSONObject data type", i)
 	}
 }
 func GetBytes(v JSONObject) ([]byte, error) {
-    return json.Marshal(&v)
+	return json.Marshal(&v)
 }
